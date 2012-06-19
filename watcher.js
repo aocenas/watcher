@@ -1,43 +1,59 @@
 var fs = require('fs'),
     util = require('util'),
-    path = require('path'),
-    listenerFunction,
-    excludes;
+    path = require('path');
 
-// recursive = items can be array or one file
-function listFiles (items, dir) {
-  dir = dir || '';
+module.exports = exports = function (){
 
-  if (!util.isArray(items)) {
-    items = path.join(dir,items,"/");
+  var listenerFunction,
+      excludes,
+      lastModified;
 
-    // do not return files/directories from excludes array
-    if (!excludes || excludes.indexOf(items) === -1) {
+  function watchFiles (items, dir) {
+    dir = dir || '';
 
-      if (fs.statSync(items).isFile()) {
-        console.log('started watching ' + items);
-        fs.watch(items, listenerFunction);
-      } else {
-        return listFiles(fs.readdirSync(items), items);
+    if (!util.isArray(items)) {
+      items = path.join(dir,items,"/");
+
+      // do not return files/directories from excludes array
+      if (!excludes || excludes.indexOf(items) === -1) {
+
+        if (fs.statSync(items).isFile()) {
+          console.log('started watching ' + items);
+          fs.watch(items, listenerFunction);
+        } else {
+          dir = items;
+          items = fs.readdirSync(items)
+        }
       }
     }
-  } else {
-    //items is an array
+    //items was an array or was a directory either way it should array now
     if (items.length !== 0) {
-      items.forEach(function (item) { listFiles(item, dir)});
+      items.forEach(function (item) { watchFiles(item, dir)});
     }
-  };
-}
+  }
 
-function normalizeWithSlash (item) {
-  return path.join(item,'/');
-}
+  function normalizeWithSlash (item) {
+    return path.join(item,'/');
+  }
 
-debugger;
-module.exports = exports = function (){
+  function createListenerFunction (options) {
+    return function listener (event, filename) {
+      if (event === 'change') {
+        options.beforeCallback(filename);
+        if(!lastModified){
+          lastModified = new Date();
+
+        }
+        options.afterCallback(filename);
+
+    };
+  }
 
   return {
     watch : function (options) {
+
+
+
       options.includes = options.includes.map(normalizeWithSlash);
       excludes = options.excludes && opts.excludes.map(normalizeWithSlash);
 
@@ -51,5 +67,6 @@ module.exports = exports = function (){
 
     }
   };
+
 };
 
