@@ -1,6 +1,6 @@
 var child_process = require('child_process'),
     fs = require('fs'),
-    watcher = require('./watcher'),
+    watcher = require('./lib/watcher.js'),
     child;
 
 function new_child () {
@@ -41,10 +41,9 @@ watcher().watch({
       './../node/data/',
       './../node/node_modules/'
     ],
-  onchange : function (filename) {
-    console.log('restarting process because file %s was changed', filename);
-    child.kill();
-    child = new_child();
-  },
-  pipeOutput : true
+  process : 'node',
+  procArgs : ['--debug', './../node/server.js'],
+  afterCallback : function (filename) {
+    console.log('restarting after change in file : ' + filename);
+  }
 });
