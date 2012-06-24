@@ -1,0 +1,10 @@
+{
+  "name"          : "watcher",
+  "description"   : "Simple file change watcher",
+  "author"        : "Andrej Ocenas <andrej.ocenas.mail@gmail.com>",
+  //"dependencies"  : {"eyes": ">=0.1.6"},
+  "main"          : "./index",
+  "bin"           : "./bin/watcher",
+  "directories"   : { "test": "./test", "bin": "./bin" },
+  "version"       : "0.0.1"
+}
